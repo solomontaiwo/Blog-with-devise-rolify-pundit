@@ -69,3 +69,5 @@ end
 gem "rolify"
 
 gem "devise"
+
+gem "pundit"
