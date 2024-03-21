@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>BlogWithDeviseRolifyPundit</title>
+    <title>Blog With Devise, Rolify and Pundit</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -11,11 +11,29 @@
   </head>
 
   <body>
+
+    <nav>
+      <ul class="nav-links">
+        <li><%= link_to 'Home', root_path %></li>
+        <% if user_signed_in? %>
+          <!-- Display logout link if the user is signed in -->
+          <li><%= current_user_role %></li>
+          <li><%= current_user.email %>
+          <li><%= button_to 'Sign Out', destroy_user_session_path, method: :delete, form: { class: 'sign-out-form' } %>
+          </li>
+        <% else %>
+          <!-- Display login and register links if the user is not signed in -->
+          <li><%= link_to 'Login', new_user_session_path %></li>
+          <li><%= link_to 'Register', new_user_registration_path %></li>
+        <% end %>
+      </ul>
+    </nav>
     
     <!-- Flash messages -->
     <p class="notice"><%= notice %></p>
     <p class="alert"><%= alert %></p>
 
     <%= yield %>
+
   </body>
 </html>

@@ -1,10 +1,11 @@
 class ArticlesController < ApplicationController
+  before_action :set_article, only: [:show, :edit, :update, :destroy]
+
   def index
     @articles = Article.all
   end
 
   def show
-    @article = Article.find(params[:id])
   end
 
   def new
@@ -12,38 +13,51 @@ class ArticlesController < ApplicationController
   end
 
   def create
-    @article = Article.new(article_params)
+    @article = current_user.articles.build(article_params)
+    authorize @article
 
     if @article.save
-      redirect_to @article
+      redirect_to @article, notice: "Article was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
-    @article = Article.find(params[:id])
+    authorize @article
   end
 
   def update
-    @article = Article.find(params[:id])
+    authorize @article
 
     if @article.update(article_params)
-      redirect_to @article
+      redirect_to @article, notice: "Article was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @article = Article.find(params[:id])
-    @article.destroy
+    authorize @article
 
-    redirect_to root_path, status: :see_other
+    @article.destroy
+    redirect_to root_path, notice: "Article was successfully deleted."
   end
 
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
   private
-    def article_params
-      params.require(:article).permit(:title, :body, :status)
-    end
+
+  def set_article
+    @article = Article.find(params[:id])
+  end
+
+  def user_not_authorized
+    flash[:alert] = "You are not authorized to perform this action."
+    redirect_to(request.referrer || root_path)
+  end
+
+  def article_params
+    params.require(:article).permit(:title, :body, :status)
+  end
 end
